@@ -8,8 +8,8 @@ const users = require('./users');
 function initSocket(socket) {
   let id;
   socket
-    .on('init', async () => {
-      id = await users.create(socket);
+    .on('init', async ({ customId } = {}) => {
+      id = await users.create(socket, customId);
       if (id) {
         socket.emit('init', { id });
       } else {
@@ -49,8 +49,8 @@ module.exports = (server) => {
     'http://localhost:5000'
   ];
 
-  io({ 
-    path: '/bridge', 
+  io({
+    path: '/bridge',
     serveClient: false,
     cors: {
       origin: allowedOrigins,

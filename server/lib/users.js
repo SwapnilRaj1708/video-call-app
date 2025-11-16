@@ -16,8 +16,15 @@ async function randomID(counter = 0) {
   return id in users ? randomID(counter + 1) : id;
 }
 
-exports.create = async (socket) => {
-  const id = await randomID();
+exports.create = async (socket, preferredId) => {
+  let id = typeof preferredId === 'string' ? preferredId.trim() : '';
+  if (id) {
+    if (users[id]) {
+      return null;
+    }
+  } else {
+    id = await randomID();
+  }
   if (id) {
     users[id] = socket;
   }

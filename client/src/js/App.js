@@ -23,7 +23,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    socket
+    const params = new URLSearchParams(window.location.search);
+    const customId = params.get('customId');
+    const initPayload = customId ? { customId } : undefined;
+    const connection = socket
       .on('request', ({ from: callFrom }) => {
         this.setState({ callModal: 'active', callFrom });
       })
@@ -33,8 +36,13 @@ class App extends Component {
           if (data.sdp.type === 'offer') this.pc.createAnswer();
         } else this.pc.addIceCandidate(data.candidate);
       })
-      .on('end', this.endCall.bind(this, false))
-      .emit('init');
+      .on('end', this.endCall.bind(this, false));
+
+    if (initPayload) {
+      connection.emit('init', initPayload);
+    } else {
+      connection.emit('init');
+    }
   }
 
   startCall(isCaller, friendID, config) {
